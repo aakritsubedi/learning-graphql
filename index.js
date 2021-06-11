@@ -164,6 +164,40 @@ const RootMutationType = new GraphQLObjectType({
         return author;
       },
     },
+    deleteBook: {
+      type: GraphQLString,
+      description: "Delete a book",
+      args: {
+        id: { type: GraphQLNonNull(GraphQLInt) }
+      },
+      resolve: (parent, args) => {
+        const bookIndex = books.findIndex((book) => book.id === args.id);
+        if (bookIndex === -1) {
+          throw new Error(`Couldn't find book with id ${args.id}`);
+        }
+
+        books.splice(bookIndex, 1);
+
+        return `Book with id ${args.id} has been deleted.`;
+      }
+    },
+    deleteAuthor: {
+      type: GraphQLString,
+      description: "Detele the author",
+      args: {
+        id: { type: GraphQLNonNull(GraphQLInt) },
+      },
+      resolve: (parent, args) => {
+        const authorIndex = authors.findIndex((author) => author.id === args.id);
+        if (authorIndex === -1) {
+          throw new Error(`Couldn't find author with id ${args.id}`);
+        }
+        
+        authors.splice(authorIndex, 1);
+
+        return `Author with id ${args.id} has been deleted`;
+      },
+    },
   }),
 });
 

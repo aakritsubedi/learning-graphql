@@ -334,3 +334,27 @@ updateBook: {
 ```
 
 ![Update Mutation](./images/05_graphQLUpdate.png)
+
+9. Delete data
+   Add a mutation to receive id as the arguments. Then, simply remove the data with the id from the dataset.
+
+```javascript
+deleteBook: {
+type: GraphQLString,
+description: "Delete a book",
+args: {
+  id: { type: GraphQLNonNull(GraphQLInt) }
+},
+resolve: (parent, args) => {
+  const bookIndex = books.findIndex((book) => book.id === args.id);
+  if (bookIndex === -1) {
+    throw new Error(`Couldn't find book with id ${args.id}`);
+  }
+
+  books.splice(bookIndex, 1);
+
+  return `Book with id ${args.id} has been deleted.`;
+}
+```
+
+![GraphQL Delete](./images/06_graphQLDelete.png)
