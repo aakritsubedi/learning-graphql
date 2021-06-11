@@ -231,6 +231,8 @@ const schema = new GraphQLSchema({
 });
 ```
 
+![GraphQL](./images/02_graphQLQuery.png)
+
 6. Adding args in query 
 ```javascript
 // Root Query
@@ -259,3 +261,5 @@ const RootQueryType = new GraphQLObjectType({
   }),
 });
 ```
+
+![GraphQL](./images/03_graphQLQuery.png)
