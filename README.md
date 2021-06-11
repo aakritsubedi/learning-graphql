@@ -97,6 +97,7 @@ We get the information that we want with the single query. We get only the infor
 The ability to be able to not only query specific information but also query nested information without having to call the server more than one time.
 
 ## GraphQL API
+
 ### Steps
 
 1. Setup NodeJS-Express Application
@@ -115,7 +116,7 @@ const app = express();
 app.get("/", (req, res, next) => {
   res.status(200).json({
     name: "Learning GraphQL",
-    version: "v1.0.0"
+    version: "v1.0.0",
   });
 });
 
@@ -126,11 +127,13 @@ app.listen(5000, () => {
 ```
 
 2. Setup GraphQL related dependencies
+
 ```sh
 $ yarn add express-graphql graphql
 ```
 
 3. Adding GraphQL to express APP and a dummy schema
+
 ```javascript
 ..
 const { graphqlHTTP } = require('express-graphql');
@@ -146,7 +149,7 @@ const schema =  new GraphQLSchema({
   query: new GraphQLObjectType({
     name: 'HelloWorld',
     fields: () => ({
-      message: { 
+      message: {
         type: GraphQLString,
         resolve: () => {
           return 'Hello World'
@@ -159,9 +162,71 @@ const schema =  new GraphQLSchema({
 app.use('/graphql', graphqlHTTP({
   schema: schema,
   graphiql: true
-}));  
+}));
 ```
 
 Now at [http://localhost:5000/graphql](http://localhost:5000/graphql)
 ![GraphiQL](./images/01_graphiQL.png)
 
+4. Add dummy data source
+
+- List of authors: [author.js](./data/author.js)
+- List of books: [book.js](./data/book.js)
+
+5. Add Types, Schema and Root Query
+
+```javascript
+// Types
+const AuthorType = new GraphQLObjectType({
+  name: "Author",
+  description: "This represents the author of the Book",
+  fields: () => ({
+    id: { type: GraphQLNonNull(GraphQLInt) },
+    name: { type: GraphQLNonNull(GraphQLString) },
+    books: {
+      type: new GraphQLList(BookType),
+      resolve: (author) => {
+        return books.filter((book) => book.authorId == author.id);
+      },
+    },
+  }),
+});
+
+const BookType = new GraphQLObjectType({
+  name: "Book",
+  description: "This represents a book written by author",
+  fields: () => ({
+    id: { type: GraphQLNonNull(GraphQLInt) },
+    name: { type: GraphQLNonNull(GraphQLString) },
+    authorId: { type: GraphQLNonNull(GraphQLInt) },
+    author: {
+      type: AuthorType,
+      resolve: (book) => {
+        return authors.find((author) => author.id === book.authorId);
+      },
+    },
+  }),
+});
+
+// Root Query
+const RootQueryType = new GraphQLObjectType({
+  name: "query",
+  description: "Root Query",
+  fields: () => ({
+    books: {
+      type: new GraphQLList(BookType),
+      description: "A list of books",
+      resolve: () => books,
+    },
+    authors: {
+      type: new GraphQLList(AuthorType),
+      description: "A list of authors",
+      resolve: () => authors,
+    },
+  }),
+});
+
+const schema = new GraphQLSchema({
+  query: RootQueryType,
+});
+```
