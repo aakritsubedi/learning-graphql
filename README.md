@@ -230,3 +230,32 @@ const schema = new GraphQLSchema({
   query: RootQueryType,
 });
 ```
+
+6. Adding args in query 
+```javascript
+// Root Query
+const RootQueryType = new GraphQLObjectType({
+  name: "query",
+  description: "Root Query",
+  fields: () => ({
+    book: {
+      type: BookType,
+      description: "A single book",
+      args: {
+        id: { type: GraphQLInt }
+      },
+      resolve: (parent, args) => books.find(book => book.id === args.id),
+    },
+    ...
+    author: {
+      type: AuthorType,
+      description: "A information about author",
+      args: {
+        id: { type: GraphQLInt }
+      },
+      resolve: (parent, args) => authors.find(author => author.id === args.id)
+    },
+    ...
+  }),
+});
+```
