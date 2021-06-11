@@ -358,3 +358,6 @@ resolve: (parent, args) => {
 ```
 
 ![GraphQL Delete](./images/06_graphQLDelete.png)
+
+### Demo 
+![GraphQL](./images/GraphQL.gif)
