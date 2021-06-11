@@ -233,7 +233,8 @@ const schema = new GraphQLSchema({
 
 ![GraphQL](./images/02_graphQLQuery.png)
 
-6. Adding args in query 
+6. Adding args in query
+
 ```javascript
 // Root Query
 const RootQueryType = new GraphQLObjectType({
@@ -264,8 +265,9 @@ const RootQueryType = new GraphQLObjectType({
 
 ![GraphQL](./images/03_graphQLQuery.png)
 
-7. Modifying the data
-Add a mutation and update the schema
+7. Add the new data
+   Add a mutation and update the schema
+
 ```javascript
 // Mutation
 const RootMutationType = new GraphQLObjectType({
@@ -276,28 +278,59 @@ const RootMutationType = new GraphQLObjectType({
       type: BookType,
       description: "Add a Book",
       args: {
-        name: { type: GraphQLNonNull(GraphQLString)},
-        authorId: { type: GraphQLNonNull(GraphQLInt)},
+        name: { type: GraphQLNonNull(GraphQLString) },
+        authorId: { type: GraphQLNonNull(GraphQLInt) },
       },
       resolve: (parent, args) => {
         const book = {
-          id: books.length+1,
+          id: books.length + 1,
           name: args.name,
-          authorId: args.authorId
-        }
+          authorId: args.authorId,
+        };
 
-        books.push(book)
+        books.push(book);
 
         return book;
-      }
-    }
-  })
-})
+      },
+    },
+  }),
+});
 
 const schema = new GraphQLSchema({
   query: RootQueryType,
-  mutation: RootMutationType
+  mutation: RootMutationType,
 });
 ```
 
 ![GraphQL Mutations](./images/04_graphQLMutation.png)
+
+8. Update the data
+   Add the update mutation
+
+```javascript
+updateBook: {
+  type: BookType,
+  description: "Update the Book",
+  args: {
+    id: { type: GraphQLNonNull(GraphQLInt) },
+    name: { type: GraphQLNonNull(GraphQLString) },
+    authorId: { type: GraphQLNonNull(GraphQLInt) }
+  },
+  resolve: (parent, args) => {
+    const book = books.find(book => book.id === args.id);
+    if (!book) {
+      throw new Error(`Couldn't find book with id ${args.id}`);
+    }
+
+    if (args.name !== undefined) {
+      book.name = args.name;
+    }
+    if (args.authorId !== undefined) {
+      book.authorId = args.authorId;
+    }
+
+    return book;
+}
+```
+
+![Update Mutation](./images/05_graphQLUpdate.png)

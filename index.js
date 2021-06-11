@@ -122,6 +122,48 @@ const RootMutationType = new GraphQLObjectType({
         return author;
       },
     },
+    updateBook: {
+      type: BookType,
+      description: "Update the Book",
+      args: {
+        id: { type: GraphQLNonNull(GraphQLInt) },
+        name: { type: GraphQLString },
+        authorId: { type: GraphQLInt },
+      },
+      resolve: (parent, args) => {
+        const book = books.find((book) => book.id === args.id);
+        if (!book) {
+          throw new Error(`Couldn't find book with id ${args.id}`);
+        }
+
+        if (args.name !== undefined) {
+          book.name = args.name;
+        }
+        if (args.authorId !== undefined) {
+          book.authorId = args.authorId;
+        }
+
+        return book;
+      },
+    },
+    updateAuthor: {
+      type: AuthorType,
+      description: "Update the Author info",
+      args: {
+        id: { type: GraphQLNonNull(GraphQLInt) },
+        name: { type: GraphQLNonNull(GraphQLString) },
+      },
+      resolve: (parent, args) => {
+        const author = authors.find((author) => author.id === args.id);
+        if (!author) {
+          throw new Error(`Couldn't find author with id ${args.id}`);
+        }
+        
+        author.name = args.name;
+
+        return author;
+      },
+    },
   }),
 });
 
