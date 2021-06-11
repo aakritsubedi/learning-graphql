@@ -1,0 +1,34 @@
+{
+  "name": "graphql",
+  "version": "1.0.0",
+  "description": "Learning GraphQL ",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "start:dev": "nodemon index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aakritsubedi/learning-graphql.git"
+  },
+  "keywords": [
+    "GraphQL",
+    "Node",
+    "Express",
+    "Express-GraphQL"
+  ],
+  "author": "AAkrit Subedi",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/aakritsubedi/learning-graphql/issues"
+  },
+  "homepage": "https://github.com/aakritsubedi/learning-graphql#readme",
+  "dependencies": {
+    "express": "^4.17.1",
+    "express-graphql": "^0.12.0",
+    "graphql": "^15.5.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.7"
+  }
+}

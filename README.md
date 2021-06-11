@@ -40,23 +40,24 @@ First thing that we need to do is to access that authors endpoint to get back a 
   {
     "id": 2,
     "name": "...",
-    "age": 
+    "age":
     ...
   },
-  ... 
+  ...
 ]
 ```
-Once, we have that list of authors, we use the ID of each author and call the server again to get the books for that particular author. So, if we have 100 authors, we have to call the book endpoint 100more times to get the books for those author and each time we invoke, it will send all the information back for the books not just the fields we required at the moment. 
+
+Once, we have that list of authors, we use the ID of each author and call the server again to get the books for that particular author. So, if we have 100 authors, we have to call the book endpoint 100more times to get the books for those author and each time we invoke, it will send all the information back for the books not just the fields we required at the moment.
 
 By using REST API in order to access the data, we have to call the API many more times than we really want to and also get bunch of extra information back from our server which we don't actually need.
 
-**GraphQL**  
+**GraphQL**
 
-With GraphQL, we compose a query of exactly the data that we want. So, simply we compose a query to get a list of all the author's name and get all the book's name for the particular author. 
+With GraphQL, we compose a query of exactly the data that we want. So, simply we compose a query to get a list of all the author's name and get all the book's name for the particular author.
 
-| Endpoint | Method | Body |Description |
-| :-------- | :------- |  :------- |:------------------------- |
-| `/graphql` | POST | query |...to get data, based on the query|
+| Endpoint   | Method | Body  | Description                        |
+| :--------- | :----- | :---- | :--------------------------------- |
+| `/graphql` | POST   | query | ...to get data, based on the query |
 
 ```
 query {
@@ -68,6 +69,7 @@ query {
   }
 }
 ```
+
 The server will parse that query and send you back exactly that information that we want with just one query to the server.
 
 ```js
@@ -89,6 +91,77 @@ The server will parse that query and send you back exactly that information that
   ...
 ]
 ```
+
 We get the information that we want with the single query. We get only the information that we asked for it. This is incredibly powerful and is the real reason that GraphQL is so important.
 
-The ability to be able to not only query specific information but also query nested information without having to call the server more than one time.  
+The ability to be able to not only query specific information but also query nested information without having to call the server more than one time.
+
+## GraphQL API
+### Steps
+
+1. Setup NodeJS-Express Application
+
+```sh
+$ npm init --yes
+$ yarn add express
+$ yarn add -D nodemon
+```
+
+```javascript
+const express = require("express");
+
+const app = express();
+
+app.get("/", (req, res, next) => {
+  res.status(200).json({
+    name: "Learning GraphQL",
+    version: "v1.0.0"
+  });
+});
+
+const PORT = 5000;
+app.listen(5000, () => {
+  console.log(`The server is running at ${PORT}`);
+});
+```
+
+2. Setup GraphQL related dependencies
+```sh
+$ yarn add express-graphql graphql
+```
+
+3. Adding GraphQL to express APP and a dummy schema
+```javascript
+..
+const { graphqlHTTP } = require('express-graphql');
+const {
+  GraphQLSchema,
+  GraphQLObjectType,
+  GraphQLString
+} = require('graphql')
+...
+
+// Dummy Schema
+const schema =  new GraphQLSchema({
+  query: new GraphQLObjectType({
+    name: 'HelloWorld',
+    fields: () => ({
+      message: { 
+        type: GraphQLString,
+        resolve: () => {
+          return 'Hello World'
+        }
+       }
+    })
+  })
+})
+
+app.use('/graphql', graphqlHTTP({
+  schema: schema,
+  graphiql: true
+}));  
+```
+
+Now at [http://localhost:5000/graphql](http://localhost:5000/graphql)
+![GraphiQL](./images/01_graphiQL.png)
+
