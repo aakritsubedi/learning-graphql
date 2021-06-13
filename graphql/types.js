@@ -6,8 +6,8 @@ const {
   GraphQLNonNull,
 } = require("graphql");
 
-const books = require("../data/books");
-const authors = require("../data/author");
+const BookService = require("../services/books");
+const AuthorService = require("../services/author");
 
 // Types
 const AuthorType = new GraphQLObjectType({
@@ -18,8 +18,10 @@ const AuthorType = new GraphQLObjectType({
     name: { type: GraphQLNonNull(GraphQLString) },
     books: {
       type: new GraphQLList(BookType),
-      resolve: (author) => {
-        return books.filter((book) => book.authorId == author.id);
+      resolve: async (author) => {
+        const books = await BookService.fetchBookByAuthorId(author.id);
+        
+        return books;
       },
     },
   }),
@@ -31,11 +33,17 @@ const BookType = new GraphQLObjectType({
   fields: () => ({
     id: { type: GraphQLNonNull(GraphQLInt) },
     name: { type: GraphQLNonNull(GraphQLString) },
+    originalLanguage: { type: GraphQLString },
+    firstPublished: { type: GraphQLString },
+    approximateSales: { type: GraphQLString },
+    genre: { type: GraphQLString },
     authorId: { type: GraphQLNonNull(GraphQLInt) },
     author: {
       type: AuthorType,
-      resolve: (book) => {
-        return authors.find((author) => author.id === book.authorId);
+      resolve: async (book) => {
+        const author = await AuthorService.fetchAuthorById(book.authorId);
+
+        return author;
       },
     },
   }),

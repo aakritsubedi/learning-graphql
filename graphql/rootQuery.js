@@ -2,8 +2,8 @@ const { GraphQLObjectType, GraphQLList, GraphQLInt } = require("graphql");
 
 const { BookType, AuthorType } = require("./types");
 
-const books = require("../data/books");
-const authors = require("../data/author");
+const BookService = require("../services/books");
+const AuthorService = require("../services/author");
 
 // Root Query
 const RootQueryType = new GraphQLObjectType({
@@ -16,12 +16,20 @@ const RootQueryType = new GraphQLObjectType({
       args: {
         id: { type: GraphQLInt },
       },
-      resolve: (parent, args) => books.find((book) => book.id === args.id),
+      resolve: async (parent, args) => {
+        const book = await BookService.fetchBookById(args.id);
+        
+        return book;
+      },
     },
     books: {
       type: new GraphQLList(BookType),
       description: "A list of books",
-      resolve: () => books,
+      resolve: async () => {
+        const books = await BookService.fetchAllBooks();
+
+        return books;
+      },
     },
     author: {
       type: AuthorType,
@@ -29,13 +37,20 @@ const RootQueryType = new GraphQLObjectType({
       args: {
         id: { type: GraphQLInt },
       },
-      resolve: (parent, args) =>
-        authors.find((author) => author.id === args.id),
+      resolve: async (parent, args) => {
+        const author = await AuthorService.fetchAuthorById(args.id);
+        
+        return author;
+      },
     },
     authors: {
       type: new GraphQLList(AuthorType),
       description: "A list of authors",
-      resolve: () => authors,
+      resolve: async () => {
+        const authors = await AuthorService.fetchAllAuthors();
+
+        return authors;
+      },
     },
   }),
 });

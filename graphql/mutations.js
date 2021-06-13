@@ -1,3 +1,5 @@
+const { v4: uuidv4 } = require("uuid");
+
 const {
   GraphQLObjectType,
   GraphQLString,
@@ -5,10 +7,10 @@ const {
   GraphQLNonNull,
 } = require("graphql");
 
-const { BookType, AuthorType } = require('./types');
+const { BookType, AuthorType } = require("./types");
 
-const books = require("../data/books");
-const authors = require("../data/author");
+const BookService = require("../services/books");
+const AuthorService = require("../services/author");
 
 // Mutation
 const RootMutationType = new GraphQLObjectType({
@@ -20,16 +22,24 @@ const RootMutationType = new GraphQLObjectType({
       description: "Add a Book",
       args: {
         name: { type: GraphQLNonNull(GraphQLString) },
+        originalLanguage: { type: GraphQLString },
+        firstPublished: { type: GraphQLString },
+        approximateSales: { type: GraphQLString },
+        genre: { type: GraphQLString },
         authorId: { type: GraphQLNonNull(GraphQLInt) },
       },
-      resolve: (parent, args) => {
+      resolve: async (parent, args) => {
         const book = {
-          id: books.length + 1,
+          id: uuidv4(),
           name: args.name,
+          originalLanguage: args.originalLanguage,
+          firstPublished: args.firstPublished,
+          approximateSales: args.approximateSales,
+          genre: args.genre,
           authorId: args.authorId,
         };
 
-        books.push(book);
+        await BookService.addBook(book);
 
         return book;
       },
@@ -40,93 +50,15 @@ const RootMutationType = new GraphQLObjectType({
       args: {
         name: { type: GraphQLNonNull(GraphQLString) },
       },
-      resolve: (parent, args) => {
+      resolve: async (parent, args) => {
         const author = {
-          id: authors.length + 1,
+          id: uuidv4(),
           name: args.name,
         };
 
-        authors.push(author);
+        await AuthorService.addAuthor(author);
 
         return author;
-      },
-    },
-    updateBook: {
-      type: BookType,
-      description: "Update the Book",
-      args: {
-        id: { type: GraphQLNonNull(GraphQLInt) },
-        name: { type: GraphQLString },
-        authorId: { type: GraphQLInt },
-      },
-      resolve: (parent, args) => {
-        const book = books.find((book) => book.id === args.id);
-        if (!book) {
-          throw new Error(`Couldn't find book with id ${args.id}`);
-        }
-
-        if (args.name !== undefined) {
-          book.name = args.name;
-        }
-        if (args.authorId !== undefined) {
-          book.authorId = args.authorId;
-        }
-
-        return book;
-      },
-    },
-    updateAuthor: {
-      type: AuthorType,
-      description: "Update the Author info",
-      args: {
-        id: { type: GraphQLNonNull(GraphQLInt) },
-        name: { type: GraphQLNonNull(GraphQLString) },
-      },
-      resolve: (parent, args) => {
-        const author = authors.find((author) => author.id === args.id);
-        if (!author) {
-          throw new Error(`Couldn't find author with id ${args.id}`);
-        }
-
-        author.name = args.name;
-
-        return author;
-      },
-    },
-    deleteBook: {
-      type: GraphQLString,
-      description: "Delete a book",
-      args: {
-        id: { type: GraphQLNonNull(GraphQLInt) },
-      },
-      resolve: (parent, args) => {
-        const bookIndex = books.findIndex((book) => book.id === args.id);
-        if (bookIndex === -1) {
-          throw new Error(`Couldn't find book with id ${args.id}`);
-        }
-
-        books.splice(bookIndex, 1);
-
-        return `Book with id ${args.id} has been deleted.`;
-      },
-    },
-    deleteAuthor: {
-      type: GraphQLString,
-      description: "Detele the author",
-      args: {
-        id: { type: GraphQLNonNull(GraphQLInt) },
-      },
-      resolve: (parent, args) => {
-        const authorIndex = authors.findIndex(
-          (author) => author.id === args.id
-        );
-        if (authorIndex === -1) {
-          throw new Error(`Couldn't find author with id ${args.id}`);
-        }
-
-        authors.splice(authorIndex, 1);
-
-        return `Author with id ${args.id} has been deleted`;
       },
     },
   }),
